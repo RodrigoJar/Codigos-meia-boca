@@ -1,0 +1,5 @@
+let idade = 12
+let possuiCarteira = true
+ if(idade >= 18 && possuiCarteira){
+     console.log("maior de idade")
+ }else{
