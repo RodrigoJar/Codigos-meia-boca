@@ -1,0 +1,8 @@
+let salario = 2000
+ if (salario < 2000){
+     sal_final = salario * 10/100
+     console.log("salario final:" + sal_final)
+ }else{
+     sal_final = salario + salario * 15/100
+     console.log("salario final:" + sal_final)
+ }
