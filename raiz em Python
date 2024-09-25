@@ -1,0 +1,8 @@
+import math
+
+i = 1
+while i <= 15:
+ num = float(input('Digite um valor real: '))
+ raiz = math.sqrt(num)
+ print('A raiz quadrada de', num, 'é',raiz)
+ i = i + 1
