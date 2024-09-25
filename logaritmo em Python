@@ -1,0 +1,4 @@
+import math
+num = float ( input('Digite um valor real: '))
+resultado = math.log10(num)
+print('Logaritmo de', num, 'na base 10 é', resultado)
