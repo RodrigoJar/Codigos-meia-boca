@@ -1,0 +1,80 @@
+# Criando objetos da classe DvdPlayer
+dp1 = DvdPlayer(399.99, 8)  # Usando construtor com parâmetros opcionais
+dp2 = DvdPlayer(valor=99.8, dvds=8)  # Usando construtor com parâmetros especificados
+
+# Criando objetos da classe BlurayPlayer
+bp1 = BlurayPlayer()  # Usando construtor com parâmetros opcionais
+bp2 = BlurayPlayer(valor=599.79, dvds=1, bds=12)  # Usando construtor com parâmetros especificados
+
+# Exemplo de uso
+print(f"dp1: valor = {dp1.valor}, dvds = {dp1.dvds}")
+print(f"dp2: valor = {dp2.valor}, dvds = {dp2.dvds}")
+
+print(f"bp1: valor = {bp1.valor}, dvds = {bp1.dvds}, bds = {bp1.bds}")
+print(f"bp2: valor = {bp2.valor}, dvds = {bp2.dvds}, bds = {bp2.bds}")
+-----------------------------------------------------------------------
+# Criando objetos da classe DvdPlayer
+dp1 = DvdPlayer(399.99, 8)  # Usando construtor com parâmetros opcionais
+dp2 = DvdPlayer(valor=99.8, dvds=8)  # Usando construtor com parâmetros especificados
+
+# Mostrando o resultado da execução do método investimento para o objeto dp2
+investimento_dp2 = dp2.investimento()
+print(f"Investimento dp2: {investimento_dp2}")
+
+# Usando o setter para modificar _dvds do objeto dp1
+dp1.dvds = 4
+
+# Usando o setter para modificar _valor do objeto dp1
+dp1.valor = 149.9
+
+# Exibindo os novos valores de dp1
+print(f"dp1: valor = {dp1.valor}, dvds = {dp1.dvds}")
+print(f"Investimento dp1 após modificações: {dp1.investimento()}")
+-----------------------------------------------------------------------
+# Criando objetos da classe BlurayPlayer
+bp1 = BlurayPlayer()  # Usando construtor com parâmetros opcionais
+bp2 = BlurayPlayer(valor=599.79, dvds=1, bds=12)  # Usando construtor com parâmetros especificados
+
+# Mostrando o resultado da execução do método investimento para o objeto bp2
+investimento_bp2 = bp2.investimento()
+print(f"Investimento bp2: {investimento_bp2}")  # Cálculo: 599.79 + 30*1 + 60*12
+
+# Usando o setter para modificar _bds do objeto bp1
+bp1.bds = 6
+
+# Usando o setter para modificar _valor do objeto bp1
+bp1.valor = 549.9
+
+# Exibindo os novos valores de bp1 e o investimento após as modificações
+print(f"bp1: valor = {bp1.valor}, dvds = {bp1.dvds}, bds = {bp1.bds}")  # Saída: valor = 549.9, dvds = 8, bds = 6
+print(f"Investimento bp1 após modificações: {bp1.investimento()}")  # Cálculo do novo investimento
+
+--------------------------------------------------------------------------------------
+
+class Bomba:
+    _bomba = "Valor da Bomba"
+
+    def __init__(self, dvds=0, bds=0):
+        self._dvds = dvds
+        self._bds = bds
+
+
+# Criando os objetos
+bp1 = Bomba(dvds=5, bds=10)
+bp2 = Bomba(dvds=3, bds=7)
+dp1 = Bomba()
+
+# Mostrando o valor do atributo de classe _bomba
+print("Valor do atributo de classe _bomba:", Bomba._bomba)
+
+# Lendo um valor real para novoValor e atribuindo a _valor de dp1
+novoValor = float(input("Digite um valor real para _valor: "))
+dp1._valor = novoValor
+
+# Mostrando os valores dos atributos de instância
+print("Valor de _dvds de bp2:", bp2._dvds)
+print("Valor de _bds de bp1:", bp1._bds)
+
+# Atribuindo a soma dos valores de _dvds de bp1 e bp2 a _dvds de dp1
+dp1._dvds = bp1._dvds + bp2._dvds
+print("Soma dos valores de _dvds de bp1 e bp2:", dp1._dvds)
