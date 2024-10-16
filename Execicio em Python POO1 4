@@ -1,0 +1,41 @@
+class DvdPlayer:
+    _bomba = 1000  # Atributo de classe
+
+    def __init__(self, valor, dvds):
+        self._valor = valor
+        self._dvds = dvds
+
+    @property
+    def valor(self):
+        return self._valor
+
+    @valor.setter
+    def valor(self, novo_valor):
+        self._valor = novo_valor
+
+    @property
+    def dvds(self):
+        return self._dvds
+
+    @dvds.setter
+    def dvds(self, novos_dvds):
+        self._dvds = novos_dvds
+
+    @classmethod
+    def get_bomba(cls):
+        return cls._bomba
+
+    def investimento(self):
+        return self._valor + 30 * len(self._dvds)
+
+# Exemplo de uso
+player = DvdPlayer(500, ["Filme1", "Filme2"])
+
+print(DvdPlayer.get_bomba())  # Saída: 1000
+print(player.investimento())   # Saída: 500 + 30*2 = 560
+
+# Usando os setters
+player.valor = 600
+player.dvds = ["Filme3", "Filme4"]
+
+print(player.investimento())   # Saída: 600 + 30*2 = 660
