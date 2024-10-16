@@ -1,0 +1,64 @@
+class DvdPlayer:
+    _bomba = 40  # Atributo de classe
+
+    def __init__(self, valor=199.99, dvds=10):
+        self._valor = valor  # Atributo de instância
+        self._dvds = dvds    # Atributo de instância
+        DvdPlayer._bomba -= 2  # Subtrai 2 do atributo de classe
+
+# Exemplo de uso
+dvd_player = DvdPlayer()
+print(f"Valor: {dvd_player._valor}, DVDs: {dvd_player._dvds}, Bomba: {DvdPlayer._bomba}")
+
+----------------------------------------------------------
+class DvdPlayer:
+    def __init__(self, valor, dvds):
+        self._valor = valor
+        self._dvds = dvds
+
+    @property
+    def valor(self):
+        return self._valor
+
+    @property
+    def dvds(self):
+        return self._dvds
+
+# Exemplo de uso
+player = DvdPlayer(500, ["Filme1", "Filme2"])
+print(player.valor)  # Saída: 500
+print(player.dvds)   # Saída: ['Filme1', 'Filme2']
+
+---------------------------------------------------
+class DvdPlayer:
+    def __init__(self, valor, dvds):
+        self._valor = valor
+        self._dvds = dvds
+
+    @property
+    def valor(self):
+        return self._valor
+
+    @valor.setter
+    def valor(self, novo_valor):
+        self._valor = novo_valor
+
+    @property
+    def dvds(self):
+        return self._dvds
+
+    @dvds.setter
+    def dvds(self, novos_dvds):
+        self._dvds = novos_dvds
+
+# Exemplo de uso
+player = DvdPlayer(500, ["Filme1", "Filme2"])
+print(player.valor)  # Saída: 500
+print(player.dvds)   # Saída: ['Filme1', 'Filme2']
+
+# Usando os setters
+player.valor = 600
+player.dvds = ["Filme3", "Filme4"]
+
+print(player.valor)  # Saída: 600
+print(player.dvds)   # Saída: ['Filme3', 'Filme4']
