@@ -1,0 +1,171 @@
+A
+class DvdPlayer:
+    _bomba = 1000  # Atributo de classe
+
+    def __init__(self, valor, dvds):
+        self._valor = valor
+        self._dvds = dvds
+
+    @property
+    def valor(self):
+        return self._valor
+
+    @valor.setter
+    def valor(self, novo_valor):
+        self._valor = novo_valor
+
+    @property
+    def dvds(self):
+        return self._dvds
+
+    @dvds.setter
+    def dvds(self, novos_dvds):
+        self._dvds = novos_dvds
+
+    @classmethod
+    def get_bomba(cls):
+        return cls._bomba
+
+    def investimento(self):
+        return self._valor + 30 * len(self._dvds)
+
+
+class BlurayPlayer(DvdPlayer):
+    def __init__(self, valor=399.99, dvds=8, bds=3):
+        super().__init__(valor, dvds)
+        self._bds = bds
+
+    @property
+    def bds(self):
+        return self._bds
+
+    @bds.setter
+    def bds(self, novos_bds):
+        self._bds = novos_bds
+
+
+# Exemplo de uso
+bluray_player = BlurayPlayer()
+
+print(bluray_player.valor)  # Saída: 399.99
+print(bluray_player.dvds)   # Saída: 8
+print(bluray_player.bds)    # Saída: 3
+
+# Usando o método de investimento
+print(bluray_player.investimento())  # Saída: 399.99 + 30*8 = 799.99
+
+  ---------------------------------------------------------
+B 
+  
+  class DvdPlayer:
+    _bomba = 1000  # Atributo de classe
+
+    def __init__(self, valor, dvds):
+        self._valor = valor
+        self._dvds = dvds
+
+    @property
+    def valor(self):
+        return self._valor
+
+    @valor.setter
+    def valor(self, novo_valor):
+        self._valor = novo_valor
+
+    @property
+    def dvds(self):
+        return self._dvds
+
+    @dvds.setter
+    def dvds(self, novos_dvds):
+        self._dvds = novos_dvds
+
+    @classmethod
+    def get_bomba(cls):
+        return cls._bomba
+
+    def investimento(self):
+        return self._valor + 30 * len(self._dvds)
+
+
+class BlurayPlayer(DvdPlayer):
+    def __init__(self, valor=399.99, dvds=8, bds=3):
+        super().__init__(valor, dvds)
+        self._bds = bds
+
+    @property
+    def bds(self):
+        return self._bds
+
+    @bds.setter
+    def bds(self, novos_bds):
+        self._bds = novos_bds
+
+
+# Exemplo de uso
+bluray_player = BlurayPlayer()
+
+print(bluray_player.bds)  # Saída: 3
+
+# Usando o setter para modificar _bds
+  --------------------------------------------
+  C
+
+  class DvdPlayer:
+    _bomba = 1000  # Atributo de classe
+
+    def __init__(self, valor, dvds):
+        self._valor = valor
+        self._dvds = dvds
+
+    @property
+    def valor(self):
+        return self._valor
+
+    @valor.setter
+    def valor(self, novo_valor):
+        self._valor = novo_valor
+
+    @property
+    def dvds(self):
+        return self._dvds
+
+    @dvds.setter
+    def dvds(self, novos_dvds):
+        self._dvds = novos_dvds
+
+    @classmethod
+    def get_bomba(cls):
+        return cls._bomba
+
+    def investimento(self):
+        return self._valor + 30 * len(self._dvds)
+
+
+class BlurayPlayer(DvdPlayer):
+    def __init__(self, valor=399.99, dvds=8, bds=3):
+        super().__init__(valor, dvds)
+        self._bds = bds
+
+    @property
+    def bds(self):
+        return self._bds
+
+    @bds.setter
+    def bds(self, novos_bds):
+        self._bds = novos_bds
+
+    def investimento(self):
+        return self._valor + 30 * len(self._dvds) + 60 * self._bds
+
+
+# Exemplo de uso
+bluray_player = BlurayPlayer()
+
+print(bluray_player.investimento())  # Saída: 399.99 + 30*8 + 60*3 = 799.99
+
+bluray_player.bds = 5
+print(bluray_player.bds)  # Saída: 5
+-----------------------------------------------------
+  
+  
