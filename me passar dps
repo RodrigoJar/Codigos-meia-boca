@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD com PHP e SQLite</title>
+    <script>
+        function loadData() {
+            fetch('crud.php?action=read')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    let table = document.getElementById('data');
+                    table.innerHTML = '';
+                    data.forEach(item => {
+                        table.innerHTML += `
+                            <tr>
+                                <td>${item.id}</td>
+                                <td>${item.name}</td>
+                                <td>${item.email}</td>
+                                <td>
+                                    <button onclick="edit(${item.id}, '${item.name}', '${item.email}')">Editar</button>
+                                    <button onclick="remove(${item.id})">Remover</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(error => console.error('Error loading data:', error));
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        function save() {
+            let id = document.getElementById('id').value;
+            let nome = document.getElementById('nome').value;
+            let email = document.getElementById('email').value;
+
+            // Validate email format
+            if (!validateEmail(email)) {
+                alert('Por favor, insira um email válido.');
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('id', id);
+            formData.append('name', nome);
+            formData.append('email', email);
+
+            let action = id ? 'update' : 'create';
+
+            fetch('crud.php?action=' + action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(data => {
+                alert(data);
+                loadData();
+                clearForm();
+            })
+            .catch(error => alert('Houve um erro: ' + error.message));
+        }
+
+        function edit(id, nome, email) {
+            document.getElementById('id').value = id;
+            document.getElementById('nome').value = nome;
+            document.getElementById('email').value = email;
+        }
+
+        function remove(id) {
+            if (confirm('Deseja realmente remover o registro?')) {
+                fetch('crud.php?action=delete&id=' + id)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.text();
+                    })
+                    .then(data => {
+                        alert(data);
+                        loadData();
+                    })
+                    .catch(error => alert('Houve um erro: ' + error.message));
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('id').value = '';
+            document.getElementById('nome').value = '';
+            document.getElementById('email').value = '';
+        }
+
+        window.onload = loadData;
+    </script>
+</head>
+<body>
+    <h2>CRUD com PHP e SQLite</h2>
+    <form onsubmit="event.preventDefault(); save();">
+        <input type="hidden" id="id">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" required><br><br>
+        <label for="email">Email:</label>
+        <input type="text" id="email" required><br><br>
+        <input type="submit" value="Salvar">
+        <button type="button" onclick="clearForm()">Limpar</button>
+    </form>
+
+    <h3>Registros</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="data"></tbody>
+    </table>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+try {
+    $pdo = new PDO("sqlite:database.db");
+    $sql = "CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        idade INTEGER NOT NULL,
+        email TEXT NOT NULL
+    )";
+    $pdo->exec($sql);
+
+    $action = isset($_GET['action']) ? $_GET['action'] : '';
+
+    if ($action == 'create') {
+        $nome = $_POST['name'];
+        $email = $_POST['email'];
+        $stmt = $pdo->prepare("INSERT INTO users (name, email) VALUES (:name, :email)");
+        $stmt->bindValue(':name', $nome);
+        $stmt->bindValue(':email', $email);
+        if ($stmt->execute()) {
+            echo "Usuário criado com sucesso!";
+        } else {
+            echo "Erro ao criar usuário";
+        }
+    }
+
+    if ($action == 'read') {
+        $stmt = $pdo->query("SELECT * FROM users");
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($result);
+    }
+
+    if ($action == 'update') {
+        $id = $_POST['id'];
+        $nome = $_POST['name'];
+        $email = $_POST['email'];
+        $stmt = $pdo->prepare("UPDATE users SET name = :name, email = :email WHERE id = :id");
+        $stmt->bindValue(':name', $nome);
+        $stmt->bindValue(':email', $email);
+        $stmt->bindValue(':id', $id);
+        if ($stmt->execute()) {
+            echo "Usuário atualizado com sucesso!";
+        } else {
+            echo "Erro ao atualizar usuário";
+        }
+    }
+
+    if ($action == 'delete') {
+        $id = $_GET['id'];
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
+        $stmt->bindValue(':id', $id);
+        if ($stmt->execute()) {
+            echo "Usuário deletado com sucesso!";
+        } else {
+            echo "Erro ao deletar usuário";
+        }
+    }
+
+} catch (PDOException $e) {
+    echo 'Erro: ' . $e->getMessage();
+}
+?>
