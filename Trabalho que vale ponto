@@ -1,0 +1,530 @@
+Trabalho para composição de nota da disciplina T1001
+
+// Grupo 5: Frederick, Rodrigo, Pedro Lucas, Gianluca
+
+// Calculo exercicio 1
+
+void setup() {
+  Serial.begin(9600); // Inicia a comunicação serial a 9600 bps
+  Serial.println("Aguardando dados...");
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    String input = Serial.readStringUntil('\n'); // Lê até nova linha
+    processInput(input); // Processa os dados recebidos
+  }
+}
+
+void processInput(String input) {
+  // Tenta converter a entrada para um número
+  int number = input.toInt();
+  
+  // Verifica se a conversão foi bem-sucedida
+  if (String(number) == input) { // Se a string convertida é igual à entrada
+    Serial.print("Número recebido: ");
+    Serial.println(number);
+    
+    // Aqui você pode fazer outras operações com o número
+    // Por exemplo, acumular a soma
+    static int sum = 0;
+    sum += number;
+    
+    Serial.print("Soma acumulada: ");
+    Serial.println(sum);
+  } else {
+    // Se não for um número válido
+    Serial.println("Erro: Entrada inválida. Por favor, insira um número.");
+  }
+}
+
+
+
+
+
+//Controle de Volume: Dentro do loop, a função analogWrite() é usada para alterar o nível de volume. A função map() é //utilizada para mapear a variável thisNote a um nível de volume que varia de 50 a 255 (ajuste esse intervalo conforme //necessário).
+
+// Notas e frequências
+#define NOTE_E4  329
+#define NOTE_Gs4 415 // G# em notação correta
+#define NOTE_A4  440
+#define NOTE_B4  493
+#define NOTE_Cs4 277 // C# em notação correta
+#define NOTE_C4  261
+
+// Melodia de Bella Ciao
+int melody[] = {
+  NOTE_E4, NOTE_E4, NOTE_E4, NOTE_Gs4,
+  NOTE_E4, NOTE_E4, NOTE_E4, NOTE_Gs4,
+  NOTE_A4, NOTE_B4, NOTE_Cs4, NOTE_A4,
+  NOTE_E4, NOTE_E4, NOTE_E4, NOTE_Gs4,
+  NOTE_E4, NOTE_E4, NOTE_E4, NOTE_Gs4,
+  NOTE_A4, NOTE_B4, NOTE_Cs4, NOTE_A4
+};
+
+// Durações das notas
+int noteDurations[] = {
+  500, 500, 500, 500,
+  500, 500, 500, 500,
+  500, 500, 500, 500,
+  500, 500, 500, 500,
+  500, 500, 500, 500,
+  500, 500, 500, 500
+};
+
+// Pinos
+const int speakerPin = 8; // Pino do alto-falante
+const int volumePin = 12;  // Pino para controle de volume (PWM)
+
+void setup() {
+  pinMode(speakerPin, OUTPUT);
+  pinMode(volumePin, OUTPUT);
+}
+
+void loop() {
+  // Toca a melodia
+  for (int thisNote = 0; thisNote < 24; thisNote++) {
+    int noteDuration = noteDurations[thisNote];
+    tone(speakerPin, melody[thisNote], noteDuration);
+
+    // Modula o volume com PWM
+    // Altere este valor conforme necessário para ajustar o volume
+    int volumeLevel = map(thisNote, 0, 23, 50, 255); // Exemplo de mapeamento do volume
+    analogWrite(volumePin, volumeLevel);
+
+    // Calcula o tempo da nota + pausa
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+
+    // Para o som
+    noTone(speakerPin);
+    analogWrite(volumePin, 0); // Reseta o volume
+  }
+  // Adiciona um atraso antes de repetir
+  delay(2000);
+}
+
+Exercicio 3
+
+/// Server_udp.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+
+#pragma comment(lib, "ws2_32.lib") // Linka a biblioteca Winsock
+
+#define PORT 8080
+#define BUFFER_SIZE 1024
+
+int main() {
+    WSADATA wsaData;
+    SOCKET server_fd;
+    struct sockaddr_in server_addr, client_addr;
+    int addrlen = sizeof(client_addr);
+    char buffer[BUFFER_SIZE] = {0};
+
+    // Inicia o Winsock
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        printf("Erro no WSAStartup. Código de erro: %d\n", WSAGetLastError());
+        return 1;
+    }
+
+    // Cria o socket UDP
+    if ((server_fd = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
+        printf("Erro ao criar socket. Código de erro: %d\n", WSAGetLastError());
+        WSACleanup();
+        return 1;
+    }
+
+    // Configura o endereço e porta do servidor
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(PORT);
+
+    // Associa o socket ao endereço e porta
+    if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == SOCKET_ERROR) {
+        printf("Erro ao fazer o bind. Código de erro: %d\n", WSAGetLastError());
+        closesocket(server_fd);
+        WSACleanup();
+        return 1;
+    }
+
+    printf("Servidor UDP escutando na porta %d...\n", PORT);
+
+    // Abre o arquivo para gravação dos dados recebidos
+    FILE *file = fopen("received_file_udp.txt", "wb");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo para escrita.\n");
+        closesocket(server_fd);
+        WSACleanup();
+        return 1;
+    }
+
+    // Recebe pacotes e exibe no console, depois grava no arquivo
+    int bytes;
+    while (1) {
+        printf("Aguardando dados do cliente...\n");
+        bytes = recvfrom(server_fd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, &addrlen);
+
+        if (bytes == SOCKET_ERROR) {
+            printf("Erro ao receber dados. Código de erro: %d\n", WSAGetLastError());
+            break;
+        }
+
+        if (bytes > 0) {
+            buffer[bytes] = '\0'; // Adiciona um terminador nulo para exibir como string
+
+            // Verifica se a mensagem recebida é o sinal de finalização
+            if (strcmp(buffer, "FIM") == 0) {
+                printf("Sinal de fim recebido. Encerrando.\n");
+                break;
+            }
+
+            printf("Pacote recebido (%d bytes): %s\n", bytes, buffer);
+
+            // Grava os dados recebidos no arquivo e verifica o retorno
+            size_t written = fwrite(buffer, 1, bytes, file);
+            if (written != bytes) {
+                printf("Erro ao escrever no arquivo.\n");
+                break;
+            }
+        }
+    }
+
+    printf("Finalizando e salvando arquivo 'received_file_udp.txt'\n");
+
+    fclose(file);
+    closesocket(server_fd);
+    WSACleanup();
+    return 0;
+}
+
+
+
+/// Client_udp.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <winsock2.h>
+#include <time.h>
+#include <ws2tcpip.h>
+
+#pragma comment(lib, "ws2_32.lib")
+
+#define PORT 8080
+#define BUFFER_SIZE 1024
+
+int main() {
+    WSADATA wsaData;
+    SOCKET sockfd;
+    struct sockaddr_in serv_addr;
+    char buffer[BUFFER_SIZE] = {0};
+
+    // Inicializa o Winsock
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        printf("Erro no WSAStartup. Código de erro: %d\n", WSAGetLastError());
+        return 1;
+    }
+
+    // Cria o socket UDP
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
+        printf("Erro ao criar socket. Código de erro: %d\n", WSAGetLastError());
+        WSACleanup();
+        return 1;
+    }
+
+    // Configura o endereço do servidor
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+
+    // IP do servidor (127.0.0.1 para localhost ou substitua pelo IP da outra máquina)
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+        printf("Endereço inválido.\n");
+        closesocket(sockfd);
+        WSACleanup();
+        return 1;
+    }
+
+    // Abre o arquivo para leitura
+    FILE *file = fopen("file_to_send_udp.txt", "rb");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo para leitura.\n");
+        closesocket(sockfd);
+        WSACleanup();
+        return 1;
+    }
+
+    // Medir o tempo de transmissão
+    clock_t start = clock();
+
+    // Envia o arquivo em blocos
+    int bytes_read;
+    while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, file)) > 0) {
+        int sent_bytes = sendto(sockfd, buffer, bytes_read, 0, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+        if (sent_bytes == SOCKET_ERROR) {
+            printf("Erro ao enviar dados. Código de erro: %d\n", WSAGetLastError());
+            break;
+        }
+        printf("Enviando %d bytes para o servidor...\n", sent_bytes);
+    }
+
+    // Envia uma mensagem de finalização
+    strcpy(buffer, "FIM");
+    sendto(sockfd, buffer, strlen(buffer), 0, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+    printf("Sinal de fim enviado ao servidor.\n");
+
+    fclose(file);
+    closesocket(sockfd);
+    WSACleanup();
+    clock_t end = clock();
+    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC; // Tempo em segundos
+    printf("Tempo de transmissão UDP: %f segundos\n", time_taken);
+    
+    return 0;
+}
+
+
+///Server_tcp.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+
+#pragma comment(lib, "ws2_32.lib") // Linka a biblioteca Winsock
+
+#define PORT 8080
+#define BUFFER_SIZE 1024
+
+int main() {
+    WSADATA wsaData;
+    SOCKET server_fd, new_socket;
+    struct sockaddr_in address;
+    int addrlen = sizeof(address);
+    char buffer[BUFFER_SIZE] = {0};
+
+    // Inicia o Winsock
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        printf("Erro no WSAStartup. Código de erro: %d\n", WSAGetLastError());
+        return 1;
+    }
+
+    // Cria o socket TCP
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
+        printf("Erro ao criar socket. Código de erro: %d\n", WSAGetLastError());
+        WSACleanup();
+        return 1;
+    }
+
+    // Configura o endereço e a porta do servidor
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
+
+    // Associa o socket ao endereço e porta
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) == SOCKET_ERROR) {
+        printf("Erro ao fazer o bind. Código de erro: %d\n", WSAGetLastError());
+        closesocket(server_fd);
+        WSACleanup();
+        return 1;
+    }
+
+    // Coloca o socket em modo de escuta
+    if (listen(server_fd, 3) == SOCKET_ERROR) {
+        printf("Erro ao escutar. Código de erro: %d\n", WSAGetLastError());
+        closesocket(server_fd);
+        WSACleanup();
+        return 1;
+    }
+
+    printf("Esperando por conexão...\n");
+
+    // Aceita uma conexão
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen)) == INVALID_SOCKET) {
+        printf("Erro ao aceitar conexão. Código de erro: %d\n", WSAGetLastError());
+        closesocket(server_fd);
+        WSACleanup();
+        return 1;
+    }
+
+    // Recebe o arquivo
+    FILE *file = fopen("received_file_tcp.txt", "wb");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo para escrita.\n");
+        closesocket(new_socket);
+        closesocket(server_fd);
+        WSACleanup();
+        return 1;
+    }
+
+    int bytes;
+    while ((bytes = recv(new_socket, buffer, BUFFER_SIZE, 0)) > 0) {
+        fwrite(buffer, 1, bytes, file);
+    }
+
+    printf("Arquivo recebido via TCP\n");
+
+    fclose(file);
+    closesocket(new_socket);
+    closesocket(server_fd);
+    WSACleanup();
+    return 0;
+}
+
+
+///Client_tcp
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <winsock2.h>
+#include <time.h>
+#include <ws2tcpip.h>
+
+#pragma comment(lib, "ws2_32.lib") // Linka a biblioteca Winsock
+
+#define PORT 8080
+#define BUFFER_SIZE 1024
+
+int main() {
+    WSADATA wsaData;
+    SOCKET sock;
+    struct sockaddr_in serv_addr;
+    char buffer[BUFFER_SIZE] = {0};
+
+    // Inicializa o Winsock
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        printf("Erro no WSAStartup. Código de erro: %d\n", WSAGetLastError());
+        return 1;
+    }
+
+    // Cria o socket TCP
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
+        printf("Erro ao criar socket. Código de erro: %d\n", WSAGetLastError());
+        WSACleanup();
+        return 1;
+    }
+
+    // Configura o endereço do servidor
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+        printf("Endereço inválido ou não suportado\n");
+        closesocket(sock);
+        WSACleanup();
+        return 1;
+    }
+
+    // Conecta ao servidor
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        printf("Erro na conexão. Código de erro: %d\n", WSAGetLastError());
+        closesocket(sock);
+        WSACleanup();
+        return 1;
+    }
+
+    // Envia o arquivo
+    FILE *file = fopen("file_to_send_tcp.txt", "rb");
+    if (file == NULL) {
+     perror("Erro ao abrir o arquivo para leitura");
+     closesocket(sock);
+     WSACleanup();
+     return 1;
+    }
+     
+     // Medir o tempo de transmissão
+    clock_t start = clock();
+
+    int bytes;
+    while ((bytes = fread(buffer, 1, BUFFER_SIZE, file)) > 0) {
+        send(sock, buffer, bytes, 0);
+    }
+
+    printf("Arquivo enviado via TCP\n");
+
+    fclose(file);
+    closesocket(sock);
+    WSACleanup();
+  
+    clock_t end = clock();
+    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC; // Tempo em segundos
+    printf("Tempo de transmissão TCP: %f segundos\n", time_taken);
+
+    return 0;
+}
+
+
+///Compilador
+
+//informar se os arquivos são iguais ou diferentes.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Função para comparar dois arquivos
+int compare_files(const char *file1, const char *file2) {
+    FILE *f1 = fopen(file1, "rb");
+    FILE *f2 = fopen(file2, "rb");
+
+    if (!f1 || !f2) {
+        printf("Erro ao abrir os arquivos para comparação.\n");
+        return 0; // Considera como não iguais
+    }
+
+    // Move os ponteiros de arquivo para o início
+    fseek(f1, 0, SEEK_SET);
+    fseek(f2, 0, SEEK_SET);
+
+    char buffer1[1024], buffer2[1024];
+    size_t bytesRead1, bytesRead2;
+
+    // Compara os arquivos em blocos
+    while ((bytesRead1 = fread(buffer1, 1, sizeof(buffer1), f1)) > 0 &&
+           (bytesRead2 = fread(buffer2, 1, sizeof(buffer2), f2)) > 0) {
+        if (bytesRead1 != bytesRead2 || memcmp(buffer1, buffer2, bytesRead1) != 0) {
+            fclose(f1);
+            fclose(f2);
+            return 0; // Arquivos são diferentes
+        }
+    }
+
+    // Verifica se ambos arquivos chegaram ao fim
+    int end1 = feof(f1);
+    int end2 = feof(f2);
+
+    fclose(f1);
+    fclose(f2);
+
+    return end1 && end2; // Retorna 1 se ambos chegaram ao fim, 0 se diferentes
+}
+
+int main() {
+    // Testando a função de comparação
+    if (compare_files("file_to_send_tcp.txt", "received_file_tcp.txt")) {
+        printf("O arquivo recebido via TCP eh igual ao original.\n");
+    } else {
+        printf("O arquivo recebido via TCP eh diferente do original.\n");
+    }
+
+    if (compare_files("file_to_send_udp.txt", "received_file_udp.txt")) {
+        printf("O arquivo recebido via UDP eh igual ao original.\n");
+    } else {
+        printf("O arquivo recebido via UDP eh diferente do original.\n");
+    }
+
+    return 0;
+}
+
+/// Arquivos complementares:
+
+file_to_send_tcp.txt
+file_to_send_udp.txt
+received_file_tcp.txt
+received_file_udp.txt
+
