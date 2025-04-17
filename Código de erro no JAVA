@@ -1,0 +1,31 @@
+Codigo em JAVA mostrando como funciona o erro sem travar o codigo, exibindo uma mensagem ao inves de travar
+
+package TratarExececoes;
+
+public class Tratarexecoes {
+	public static void main(String[] args) {
+		String frase = null;
+		String novaFrase = null;
+		String nome = null;
+		try {
+			  if(nome.equals("João")) {
+				  System.out.println("Bem-vindo, João!");
+			  } else {
+				  System.out.println("Bem-vindo, " +nome);
+			  }
+		}catch(NullPointerException e) {
+			System.out.println("Erro: objeto nulo.");
+		}
+		try {
+		  novaFrase = frase.toUpperCase();
+		}catch(NullPointerException e) {
+		  System.out.println("A frase está nula. ");
+		  frase = "frase vazia";
+		  novaFrase = frase.toUpperCase();
+		}
+		System.out.println("Frase antiga: " +frase);
+		System.out.println("Frase nova: " +novaFrase);
+
+	}
+
+}
