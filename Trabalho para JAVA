@@ -1,0 +1,116 @@
+package projListaSupermercado;
+
+public class ItemSupermercado {
+    private int idItem;
+    private String nomeItem;
+    private String categoriaItem;
+    private int quantidade;
+    private double precoUnitario;
+
+    public int getIdItem() {
+        return idItem;
+    }
+    public void setIdItem(int idItem) {
+        this.idItem = idItem;
+    }
+    public String getNomeItem() {
+        return nomeItem;
+    }
+    public void setNomeItem(String nomeItem) {
+        this.nomeItem = nomeItem;
+    }
+    public String getCategoriaItem() {
+        return categoriaItem;
+    }
+    public void setCategoriaItem(String categoriaItem) {
+        this.categoriaItem = categoriaItem;
+    }
+    public int getQuantidade() {
+        return quantidade;
+    }
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }
+    public double getPrecoUnitario() {
+        return precoUnitario;
+    }
+    public void setPrecoUnitario(double precoUnitario) {
+        this.precoUnitario = precoUnitario;
+    }
+}
+package projListaSupermercado;
+
+import java.sql.*;
+import java.util.*;
+
+public class ItemDAO {
+    private Connection con;
+
+    public ItemDAO() throws SQLException {
+        this.con = ConnectionFactory.getConnection();
+    }
+
+    public void adicionar(ItemSupermercado item) throws SQLException {
+        String sql = "INSERT INTO item_supermercado(idItem, nomeItem, categoriaItem, quantidade, precoUnitario) VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement stmt = con.prepareStatement(sql);
+        stmt.setInt(1, item.getIdItem());
+        stmt.setString(2, item.getNomeItem());
+        stmt.setString(3, item.getCategoriaItem());
+        stmt.setInt(4, item.getQuantidade());
+        stmt.setDouble(5, item.getPrecoUnitario());
+        stmt.execute();
+        stmt.close();
+    }
+
+    public void apagar(ItemSupermercado item) throws SQLException {
+        String sql = "DELETE FROM item_supermercado WHERE idItem = ?";
+        PreparedStatement stmt = con.prepareStatement(sql);
+        stmt.setInt(1, item.getIdItem());
+        stmt.execute();
+        stmt.close();
+        System.out.println("Item removido!");
+    }
+
+    public List<ItemSupermercado> getLista() throws SQLException {
+        PreparedStatement stmt = con.prepareStatement("SELECT * FROM item_supermercado");
+        ResultSet rs = stmt.executeQuery();
+        List<ItemSupermercado> itens = new ArrayList<>();
+
+        while (rs.next()) {
+            ItemSupermercado item = new ItemSupermercado();
+            item.setIdItem(rs.getInt("idItem"));
+            item.setNomeItem(rs.getString("nomeItem"));
+            item.setCategoriaItem(rs.getString("categoriaItem"));
+            item.setQuantidade(rs.getInt("quantidade"));
+            item.setPrecoUnitario(rs.getDouble("precoUnitario"));
+            itens.add(item);
+        }
+        rs.close();
+        stmt.close();
+        return itens;
+    }
+}
+public static void exibeDados() throws SQLException {
+    ItemDAO dao = new ItemDAO();
+    List<ItemSupermercado> itens = dao.getLista();
+    for (ItemSupermercado item : itens) {
+        System.out.println("ID: " + item.getIdItem());
+        System.out.println("Nome: " + item.getNomeItem());
+        System.out.println("Categoria: " + item.getCategoriaItem());
+        System.out.println("Quantidade: " + item.getQuantidade());
+        System.out.println("Preço Unitário: R$" + item.getPrecoUnitario());
+        System.out.println("Total: R$" + (item.getQuantidade() * item.getPrecoUnitario()));
+        System.out.println();
+    }
+}
+CREATE DATABASE IF NOT EXISTS agenda;
+
+USE agenda;
+
+CREATE TABLE IF NOT EXISTS item_supermercado (
+    idItem INT PRIMARY KEY,
+    nomeItem VARCHAR(100),
+    categoriaItem VARCHAR(100),
+    quantidade INT,
+    precoUnitario DOUBLE
+);
