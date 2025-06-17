@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,11 +62,11 @@ void adicionar_tarefa(FilaPrioridade *fila) {
     fgets(nova.nome, MAX_STR, stdin);
     nova.nome[strcspn(nova.nome, "\n")] = 0;
 
-    printf("Descrição: ");
+    printf("Descricao: ");
     fgets(nova.descricao, MAX_STR, stdin);
     nova.descricao[strcspn(nova.descricao, "\n")] = 0;
 
-    printf("Prioridade (1 - Alta, 2 - Média, 3 - Baixa): ");
+    printf("Prioridade (1 - Alta, 2 - Media, 3 - Baixa): ");
     scanf("%d", &nova.prioridade);
 
     fila->heap[fila->tamanho] = nova;
@@ -100,7 +99,7 @@ void listar_tarefas(FilaPrioridade fila) {
     printf("Tarefas na fila:\n");
     for (int i = 0; i < fila.tamanho; i++) {
         char *prioridade_str = fila.heap[i].prioridade == 1 ? "Alta" :
-                               fila.heap[i].prioridade == 2 ? "Média" : "Baixa";
+                               fila.heap[i].prioridade == 2 ? "Media" : "Baixa";
         printf("[%s] %s: %s\n", prioridade_str, fila.heap[i].nome, fila.heap[i].descricao);
     }
 }
@@ -121,7 +120,7 @@ void buscar_tarefa(FilaPrioridade *fila) {
     }
 
     if (!encontrada) {
-        printf("Tarefa não encontrada.\n");
+        printf("Tarefa nao encontrada.\n");
     }
 }
 
@@ -133,11 +132,11 @@ void menu() {
     do {
         printf("\n--- Gerenciador de Tarefas ---\n");
         printf("1. Adicionar tarefa\n");
-        printf("2. Remover tarefa mais prioritária\n");
+        printf("2. Remover tarefa mais prioritaria\n");
         printf("3. Listar tarefas\n");
         printf("4. Buscar tarefa por nome\n");
         printf("5. Sair\n");
-        printf("Escolha uma opção: ");
+        printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
 
         switch (opcao) {
@@ -146,7 +145,7 @@ void menu() {
             case 3: listar_tarefas(fila); break;
             case 4: buscar_tarefa(&fila); break;
             case 5: printf("Saindo...\n"); break;
-            default: printf("Opção inválida.\n");
+            default: printf("Opcao invalida.\n");
         }
     } while (opcao != 5);
 }
